@@ -8,6 +8,7 @@ Created on Fri Feb 26 13:40:45 2021
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
+from sklearn.model_selection import train_test_split
 
 ##############################################################################
 # INFORMACIÓN RECOGIDA DE:
@@ -83,3 +84,37 @@ plt.legend(handles=legends_elements,loc="upper left")
     
 # Con esta instrucción se muestra el gráfico                
 plt.show()
+
+###############################################################################
+## COMIENZO DEL EJERCICIO 2
+###############################################################################
+
+##############################################################################
+# INFORMACIÓN RECOGIDA DE:
+# https://realpython.com/train-test-split-python-data/
+# https://es.wikipedia.org/wiki/Muestreo_estratificado
+##############################################################################
+
+
+training = []
+test = []
+
+# Con el parámetro startify dividiimos x en grupos homogéneos según y 
+# con los parametros de size indicamos el % del array a dividir que queremos
+# destinar a train y a test
+training,test = train_test_split(x,train_size=0.75,test_size=0.25,stratify=y)
+
+
+print("He dividido los datos del dataset iris en dos arrays\n Training con un 75% de los datos y test con un 25\n")
+     
+print("Este es el array de training:\n ", training)
+print("Su tamaño es de: ",len(training)," que es el 75% de 150 elementos\n")
+
+print("Este es el array de test:\n ", test)
+print("\nSu tamaño es de: ", len(test), " que es el 25% de 150 elementos\n")
+
+##############################################################################
+# COMIENZO DEL EJERCICIO 3
+##############################################################################
+
+    
