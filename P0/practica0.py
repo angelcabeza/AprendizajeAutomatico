@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
+from math import pi
 
 ##############################################################################
 # INFORMACIÓN RECOGIDA DE:
@@ -95,6 +96,7 @@ plt.show()
 # https://es.wikipedia.org/wiki/Muestreo_estratificado
 ##############################################################################
 
+print("\n\n Voy a separar los datos del dataset iris en dos partes (training y test...\n\n")
 
 training = []
 test = []
@@ -116,5 +118,9 @@ print("\nSu tamaño es de: ", len(test), " que es el 25% de 150 elementos\n")
 ##############################################################################
 # COMIENZO DEL EJERCICIO 3
 ##############################################################################
+valores = []
 
+valores = np.arange(0,4*pi,(4*pi)/100)
+
+print("Estos son los valores elegidos: \n",valores)
     
