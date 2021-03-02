@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from math import pi
+import math as mt
 
 ##############################################################################
 # INFORMACIÓN RECOGIDA DE:
@@ -119,8 +120,43 @@ print("\nSu tamaño es de: ", len(test), " que es el 25% de 150 elementos\n")
 # COMIENZO DEL EJERCICIO 3
 ##############################################################################
 valores = []
+senos = []
+cosenos = []
+tangentes = []
 
+# Arrange es un método que geenera valores aleatorios equispaciados
+# Sus argumentos son: start: valor incial, end: valor final (no entra dentro del intervalo)
+# Step: la distancia entre los puntos
 valores = np.arange(0,4*pi,(4*pi)/100)
 
 print("Estos son los valores elegidos: \n",valores)
+
+# En este bucle calculamos el seno, el coseno, y la tengente de la suma de los
+# senos y cosenos
+for i in range(len(valores)):
+    senos.append(mt.sin(valores[i]))
+    cosenos.append(mt.cos(valores[i]))
+    tangentes.append(mt.tan(senos[i] + cosenos[i]))
+
     
+# Instrucciones para pintar la gráfica
+
+##############################################################################
+# INFORMACIÓN RECOGIDA DE:
+# DIAPOSITIVA 49 DEL PDF LLAMADO CLASE 2 PRORPORCIONADO EN PRÁCTICAS
+############################################################################## 
+plt.plot(senos,'g--',label='seno')
+plt.plot(cosenos,'k--',label='coseno')
+plt.plot(tangentes,'r--',label='tangentes')
+
+
+# Instrucciones para poner nombre al eje X y al eje Y y para poner título a la
+# gráfica 
+plt.xlabel('X axis')
+plt.ylabel('Y axis')
+
+plt.title('Funciones seno coseno y tangente de la suma de los senos y cosenos')
+plt.legend()
+plt.show()
+
+##############################################################################
