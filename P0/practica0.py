@@ -3,7 +3,7 @@
 """
 Created on Fri Feb 26 13:40:45 2021
 
-@author: angel
+@author: Angel Cabeza Martín Grupo 3
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -75,10 +75,10 @@ plt.scatter(col_1_x,col_3_x,c=color)
 # un tamaño de 15 (markersize=15)
 legends_elements = [plt.Line2D([0], [0], marker='.', color='w', label='Clase 0',
                           markerfacecolor='orange', markersize=15),
-                    plt.Line2D([0], [0], marker='.', color='w', label='Clase 1',
-                          markerfacecolor='black', markersize=15),
-                    plt.Line2D([0], [0], marker='.', color='w', label='Clase 2',
-                          markerfacecolor='green', markersize=15)]
+                     plt.Line2D([0], [0], marker='.', color='w', label='Clase 1',
+                           markerfacecolor='black', markersize=15),
+                     plt.Line2D([0], [0], marker='.', color='w', label='Clase 2',
+                           markerfacecolor='green', markersize=15)]
 
 # Esta instrucción pone la leyenda usando la lista que hemos creado antes.
 # Además le he indicado que salga arriba a la izquierda
@@ -86,6 +86,8 @@ plt.legend(handles=legends_elements,loc="upper left")
     
 # Con esta instrucción se muestra el gráfico                
 plt.show()
+
+input("Pulse una tecla para continuar")
 
 ###############################################################################
 ## COMIENZO DEL EJERCICIO 2
@@ -97,15 +99,23 @@ plt.show()
 # https://es.wikipedia.org/wiki/Muestreo_estratificado
 ##############################################################################
 
-print("\n\n Voy a separar los datos del dataset iris en dos partes (training y test...\n\n")
+print("\n\n Voy a separar los datos del dataset iris en dos partes (training y test)...\n\n")
 
 training = []
 test = []
 
+# Concatenamos los arrays con las características 1 y 3 para separarlos
+# en training y test
+col1y3 = col_1_x + col_3_x
+
+# En este ejercicio he entendido que hay que separar las características 1 y 3
+# si hubiera que separar todo x lo único que habría que hacer es cambiar el primer
+# argumento por el vector que contiene todos los datos (x)
+ 
 # Con el parámetro startify dividiimos x en grupos homogéneos según y 
 # con los parametros de size indicamos el % del array a dividir que queremos
 # destinar a train y a test
-training,test = train_test_split(x,train_size=0.75,test_size=0.25,stratify=y)
+training,test = train_test_split(col1y3,train_size=0.75,test_size=0.25,stratify=y)
 
 
 print("He dividido los datos del dataset iris en dos arrays\n Training con un 75% de los datos y test con un 25\n")
@@ -116,18 +126,21 @@ print("Su tamaño es de: ",len(training)," que es el 75% de 150 elementos\n")
 print("Este es el array de test:\n ", test)
 print("\nSu tamaño es de: ", len(test), " que es el 25% de 150 elementos\n")
 
+input("Pulse una tecla para continuar")
+
 ##############################################################################
 # COMIENZO DEL EJERCICIO 3
 ##############################################################################
+
 valores = []
 senos = []
 cosenos = []
 tangentes = []
 
-# Arrange es un método que geenera valores aleatorios equispaciados
-# Sus argumentos son: start: valor incial, end: valor final (no entra dentro del intervalo)
-# Step: la distancia entre los puntos
-valores = np.arange(0,4*pi,(4*pi)/100)
+# linspace es un método que genera valores aleatorios equispaciados
+# Sus argumentos son: start: valor incial, end: valor final
+# el número de números que va a generar en este intervalo
+valores = np.linspace(0,4*pi,100)
 
 
 print("Estos son los valores elegidos: \n",valores)
@@ -137,7 +150,7 @@ print("Estos son los valores elegidos: \n",valores)
 for i in range(len(valores)):
     senos.append(mt.sin(valores[i]))
     cosenos.append(mt.cos(valores[i]))
-    tangentes.append(mt.tan(senos[i] + cosenos[i]))
+    tangentes.append(mt.tanh(senos[i] + cosenos[i]))
 
     
 # Instrucciones para pintar la gráfica
@@ -147,9 +160,12 @@ for i in range(len(valores)):
 # DIAPOSITIVA 49 DEL PDF LLAMADO CLASE 2 PRORPORCIONADO EN PRÁCTICAS
 ##############################################################################
 
+# Hacemos un plot del vector, el segundo argumento indica el color y la forma
+# de representar los datos ("--" indica que sea una línea discontinua)
+# y el tercer argumento indica la etiqueta que le ponemos a esta línea
 plt.plot(senos,'g--',label='seno')
 plt.plot(cosenos,'k--',label='coseno')
-plt.plot(tangentes,'r--',label='tangentes')
+plt.plot(tangentes,'r--',label='tangente hiperbólica')
 
 
 # Instrucciones para poner nombre al eje X y al eje Y y para poner título a la
@@ -157,8 +173,9 @@ plt.plot(tangentes,'r--',label='tangentes')
 plt.xlabel('X axis')
 plt.ylabel('Y axis')
 
+# Le ponemos titulo a la gráfica
 plt.title('Funciones seno coseno y tangente de la suma de los senos y cosenos')
-plt.legend()
+plt.legend(loc="lower left")
 plt.show()
 
 ##############################################################################
