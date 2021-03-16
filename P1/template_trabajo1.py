@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 TRABAJO 1. 
-Nombre Estudiante: 
+Nombre Estudiante: Ángel Cabeza Martín
 """
 
 import numpy as np
@@ -14,47 +14,61 @@ print('Ejercicio 1\n')
 
 #Derivada parcial de E con respecto a u
 def E(u,v):
-    return (u**3*np.e**(v-2)-2*v**2*np.e**-u)**2 
+    if not (apartado3):
+        return (u**3*np.e**(v-2)-2*v**2*np.e**-u)**2
+    elif (apartado3):
+        return (u + 2)**2 + 2*(v - 2)**2 + (2*np.sin(2*np.pi*u)*np.sin(2*np.pi*v))
 
-#Derivada parcial de E con respecto a u
+#Derivada parcial de E con respecto a u (o x)
 def dEu(u,v):
-    return 2*(u**3*np.e**(v-2)-2*v**2*np.e**-u)*(3*u**2*np.e**(v-2)+2*v**2*np.e**-u)
+    if not (apartado3):
+        return 2*(u**3*np.e**(v-2)-2*v**2*np.e**-u)*(3*u**2*np.e**(v-2)+2*v**2*np.e**-u)
+    elif (apartado3):
+        return 2*(u + 2) + 4*np.pi*np.cos(2*np.pi*u)*np.sin(2*np.pi*v)
     
-#Derivada parcial de E con respecto a v
+#Derivada parcial de E con respecto a v (o y)
 def dEv(u,v):
-    return 2*(u**3*np.e**(v-2)-2*v**2*np.e**-u)*(u**3*np.e**(v-2)-4*v*np.e**-u)
-
+    if not (apartado3):
+        return 2*(u**3*np.e**(v-2)-2*v**2*np.e**-u)*(u**3*np.e**(v-2)-4*v*np.e**-u)
+    elif (apartado3):
+        return 4*(v - 2) + 4*np.pi*np.sin(2*np.pi*u)*np.cos(2*np.pi*v)
+    
 #Gradiente de E
 def gradE(u,v):
     return np.array([dEu(u,v), dEv(u,v)])
 
 
-def gradient_descent(initial_point,learning_rate,error2get):
+def gradient_descent(initial_point,learning_rate,error2get,tope):
     #
     # gradiente descendente
     #
     iterations = 0
     
     w = initial_point
-    
-    while (error2get < E(w[0],w[1]) ):
+
+    while ( ( (E(w[0],w[1])) > error2get ) and (iterations < tope) ):
         w = w - learning_rate * gradE(w[0],w[1])
-        iterations = iterations + 1
         print (E(w[0],w[1]))
         
+        if (apartado3):
+            valor = E(w[0],w[1])
+            puntos_grafica.append(E(w[0],w[1]))
+            iteraciones.append(iterations)
+            
+        iterations = iterations + 1
     return w, iterations    
 
 
 eta = 0.01
 learning_rate = 0.1
-maxIter = 10000000000
+maxIter = 10000000000                  # Tope muy grande porque queremos que se pare cuando llegue a un error específico
 error2get = 1e-14
 initial_point = np.array([1.0,1.0])
-w, it = gradient_descent(initial_point,learning_rate,error2get)
+apartado3 = False
+w, it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
-
-print ('Numero de iteraciones: ', it)
-print ('Coordenadas obtenidas: (', w[0], ', ', w[1],')')
+print ( '¿Cuántas iteraciones tarda el algoritmo en obtener por primera vez un valor deE(u,v)inferior a 10−14? ', it)
+print (' \n¿En qué coordenadas(u,v) se alcanzó por primera vez un valor igual o menor a 10−14\n (', w[0], ', ', w[1],')')
 
 
 # DISPLAY FIGURE
@@ -74,10 +88,50 @@ ax.set(title='Ejercicio 1.2. Función sobre la que se calcula el descenso de gra
 ax.set_xlabel('u')
 ax.set_ylabel('v')
 ax.set_zlabel('E(u,v)')
-
+plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
 #Seguir haciendo el ejercicio...
+
+print( 'Ahora vamos a trabajar con la función f(x,y) = (x+ 2)2+ 2(y−2)2+ 2sin(2πx)sin(2πy)\n')
+apartado3 = True
+learning_rate = 0.01
+tope = 50
+error2get = 0
+initial_point = np.array([-1.0,1.0])
+puntos_grafica = []
+iteraciones = []
+w, it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
+print ( '\nEncontrado el mínimo en las coordenadas: (', w[0], ', ', w[1],')')
+
+print ('\n ESTOS SON LOS PUNTOS DE LA GRÁFICA \n')
+print(puntos_grafica)
+
+puntos_funcion = np.array(puntos_grafica)
+iterac = np.array(iteraciones)
+
+plt.plot(iterac,puntos_funcion)
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
