@@ -48,7 +48,6 @@ def gradient_descent(initial_point,learning_rate,error2get,tope):
 
     while ( ( (E(w[0],w[1])) > error2get ) and (iterations < tope) ):
         w = w - learning_rate * gradE(w[0],w[1])
-        print (E(w[0],w[1]))
         
         if (apartado3):
             valor = E(w[0],w[1])
@@ -94,39 +93,81 @@ input("\n--- Pulsar tecla para continuar ---\n")
 #Seguir haciendo el ejercicio...
 
 print( 'Ahora vamos a trabajar con la función f(x,y) = (x+ 2)2+ 2(y−2)2+ 2sin(2πx)sin(2πy)\n')
+
 apartado3 = True
 learning_rate = 0.01
-tope = 50
-error2get = 0
+maxIter = 50
+error2get = -999999
 initial_point = np.array([-1.0,1.0])
 puntos_grafica = []
 iteraciones = []
 w, it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 print ( '\nEncontrado el mínimo en las coordenadas: (', w[0], ', ', w[1],')')
 
-print ('\n ESTOS SON LOS PUNTOS DE LA GRÁFICA \n')
-print(puntos_grafica)
 
 puntos_funcion = np.array(puntos_grafica)
 iterac = np.array(iteraciones)
 
 plt.plot(iterac,puntos_funcion)
+plt.xlabel('Iteraciones')
+plt.ylabel('Valor de la función')
+plt.title('Gráfica que relaciona iteraciones y valor de la función')
 plt.show()
 
+input("\n--- Pulsar tecla para continuar ---\n")
 
+print('Vamos a repetir el experimento pero con una tasa de aprendizaje de 0.1')
+learning_rate = 0.1
 
+puntos_grafica = []
+iteraciones = []
 
+w , it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
+puntos_funcion = np.array(puntos_grafica)
+iterac = np.array(iteraciones)
 
+plt.plot(iterac,puntos_funcion)
+plt.xlabel('Iteraciones')
+plt.ylabel('Valor de la función')
+plt.title('Gráfica que relaciona iteraciones y valor de la función')
+plt.show()
 
+input("\n--- Pulsar tecla para continuar ---\n")
 
+print ('Vamos a aplicar el algoritmo del gradiente con distintos puntos iniciales\n')
 
+initial_point = np.array([-0.5,0.5])
+learning_rate = 0.01
 
+w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
+print("Con [-0.5,0.5] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
+print("Con las siguientes coordenadas: ",w,"\n")
 
+initial_point = np.array([1,1])
+w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
+print("Con [1,1] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
+print("Con las siguientes coordenadas: ",w,"\n")
 
+initial_point = np.array([2.1,-2.1])
+w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
+print("Con [2.1,-2.1] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
+print("Con las siguientes coordenadas: ",w,"\n")
+
+initial_point = np.array([-3,3])
+w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
+
+print("Con [-3,3] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
+print("Con las siguientes coordenadas: ",w,"\n")
+
+initial_point = np.array([-2,2])
+w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
+
+print("Con [-2,2] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
+print("Con las siguientes coordenadas: ",w,"\n")
 
 
 
