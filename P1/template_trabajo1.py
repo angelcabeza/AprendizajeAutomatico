@@ -46,7 +46,7 @@ def gradient_descent(initial_point,learning_rate,error2get,tope):
     
     w = initial_point
 
-    while ( ( (E(w[0],w[1])) > error2get ) and (iterations < tope) ):
+    while ( ( (E(w[0],w[1])) > error2get ) and (iterations < tope) ):        
         w = w - learning_rate * gradE(w[0],w[1])
         
         if (apartado3):
@@ -58,17 +58,24 @@ def gradient_descent(initial_point,learning_rate,error2get,tope):
     return w, iterations    
 
 
-eta = 0.01
 learning_rate = 0.1
-maxIter = 10000000000                  # Tope muy grande porque queremos que se pare cuando llegue a un error específico
+# Tope muy grande porque queremos que se pare cuando llegue a un error específico
+maxIter = 10000000000
 error2get = 1e-14
 initial_point = np.array([1.0,1.0])
+# Este booleano nos servirá para saber qué función estamos usando
 apartado3 = False
+
+# Llamamos al algoritmo del gradiente descendiente con los siguientes argumentos
+# initial_point -> Punto inicial desde el cual comenzaremos la búsqueda
+# learning_rate -> Variable que indica el cambio entre iteración e iteración
+# error2get -> Una de las opciones de parada del algoritmo
+# maxIter -> Otra de las opciones de parada del algoritmo
 w, it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
 print ( '¿Cuántas iteraciones tarda el algoritmo en obtener por primera vez un valor deE(u,v)inferior a 10−14? ', it)
 print (' \n¿En qué coordenadas(u,v) se alcanzó por primera vez un valor igual o menor a 10−14\n (', w[0], ', ', w[1],')')
-
+print ( 'El valor de la función en ese punto es: ', E(w[0],w[1]))
 
 # DISPLAY FIGURE
 from mpl_toolkits.mplot3d import Axes3D
@@ -94,6 +101,13 @@ input("\n--- Pulsar tecla para continuar ---\n")
 
 print( 'Ahora vamos a trabajar con la función f(x,y) = (x+ 2)2+ 2(y−2)2+ 2sin(2πx)sin(2πy)\n')
 
+
+# En este bloque de instrucciones, ponemos el bool de apartado3 a truee porque vamos a 
+# usar otra función, y tocamos los parámetros como se nos indican además pongo un error
+# muy muy bajo para que eel algoritmo se pare cuando llegue a 50 iteraciones en vez 
+# de por el error. Además creo dos listas que almacenarán los valores de la gráfica
+# en los distintos puntos que va encontrando el algoritmo y otra lista que almacenará
+# el número de iteraciones
 apartado3 = True
 learning_rate = 0.01
 maxIter = 50
@@ -105,17 +119,22 @@ w, it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 print ( '\nEncontrado el mínimo en las coordenadas: (', w[0], ', ', w[1],')')
 
 
+# Estas instrucciones son una manera de pasar de lista de python a array de numpy
 puntos_funcion = np.array(puntos_grafica)
 iterac = np.array(iteraciones)
 
+# Instrucciones para pintar una gráfica 2D. El eje X corresponde a las iteraciones
+# del algoritmo y el eje Y a los valores que va tomando en cada iteración
 plt.plot(iterac,puntos_funcion)
 plt.xlabel('Iteraciones')
 plt.ylabel('Valor de la función')
-plt.title('Gráfica que relaciona iteraciones y valor de la función')
+plt.title('Gráfica que relaciona iteraciones y valor de la función (eta = 0.01)')
 plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
+# Ahora repetimos el mismo experimento cambiando el learning rate, las instrucciones
+# son análogas al bloque de código anterior
 print('Vamos a repetir el experimento pero con una tasa de aprendizaje de 0.1')
 learning_rate = 0.1
 
@@ -130,11 +149,15 @@ iterac = np.array(iteraciones)
 plt.plot(iterac,puntos_funcion)
 plt.xlabel('Iteraciones')
 plt.ylabel('Valor de la función')
-plt.title('Gráfica que relaciona iteraciones y valor de la función')
+plt.title('Gráfica que relaciona iteraciones y valor de la función (eta = 0.1) ')
 plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
+# En este bloque de código vamos a asignar un learning_rate de 0.01 (en el apartado
+# anterior hemos visto que es un learning_rate muy bueno para esta función) y un
+# máximo de iteraciones 50 para distintos puntos iniciales y vamos a comprobar 
+# a qué mínimo llegan en estas iteraciones.
 print ('Vamos a aplicar el algoritmo del gradiente con distintos puntos iniciales\n')
 
 initial_point = np.array([-0.5,0.5])
@@ -168,16 +191,6 @@ w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
 print("Con [-2,2] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
 print("Con las siguientes coordenadas: ",w,"\n")
-
-
-
-
-
-
-
-
-
-
 
 
 ###############################################################################
