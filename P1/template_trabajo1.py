@@ -5,6 +5,7 @@ Nombre Estudiante: Ángel Cabeza Martín
 """
 
 import numpy as np
+from sklearn import utils
 import matplotlib.pyplot as plt
 
 np.random.seed(1)
@@ -192,6 +193,13 @@ w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 print("Con [-2,2] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
 print("Con las siguientes coordenadas: ",w,"\n")
 
+input("\n--- Pulsar tecla para continuar ---\n")
+
+
+
+
+
+
 
 ###############################################################################
 ###############################################################################
@@ -199,6 +207,8 @@ print("Con las siguientes coordenadas: ",w,"\n")
 ###############################################################################
 print('EJERCICIO SOBRE REGRESION LINEAL\n')
 print('Ejercicio 1\n')
+
+np.random.seed(1)
 
 label5 = 1
 label1 = -1
@@ -226,16 +236,82 @@ def readData(file_x, file_y):
 
 # Funcion para calcular el error
 def Err(x,y,w):
-    return 
+    
+    # He calculado el error según la fórmula dada en teoría (diapositiva 6)
+    # Ein(w) = 1/N + SUM(wT*x - y)²
+    #
+    #err = np.square(w.T.dot(x) - y)
+
+    err = np.square(x.dot(w.T) - y)
+    
+    return err.mean()
+
+def dErr(x,y,w):
+    
+    # 64 ceros
+    h_x = x.dot(w.T)
+    
+    #64 1 o -1
+    dErr = h_x - y.T
+    
+    dErr = x.T.dot(dErr)
+    
+    dErr = (2 / x.shape[0]) * dErr
+    
+    return dErr.T
 
 # Gradiente Descendente Estocastico
-def sgd(?):
-    #
+def sgd(x,y,learning_rate,num_batch,maxIter):
+
+    # el tamaño de w será dependiendo del numero de columnas de x
+    # shape[1] == columnas
+    # shape[0] == filas
+    w = np.zeros(x.shape[1])
+
+    iterations = 1
+    
+
+    # en este caso solo tenemos de condicion las iteraciones
+    while (iterations < maxIter ) :
+        
+        iterations = iterations + 1
+        
+        # Mezclamos x e y. Esta función solo cambia el orden de la matriz
+        # el contenido no lo mezcla, es decir, si la columna 4 contiene los
+        # valores 5 y 3, ahora puede que sea la columna 15 pero seguirá conteniendo
+        # los mismos valores.
+        utils.shuffle(x,y,random_state=1)
+        
+        
+        # En este bucle vamos a crear tantos minibatchs como le hemos indicado
+        # y vamos a aplicar la ecuación general para cada minibatch
+        for i in range(0,num_batch):
+        
+            # Cogemos de x e y las filas que van desde i * tam_batch hasta i*tam_batch+tam_batch
+            # p.ej si tam_batch = 64 cogeremos las filas 0-64, luego 64,128 y así
+            minibatch_x = x[i*tam_batch:i*tam_batch+tam_batch]
+            minibatch_y = y[i*tam_batch:i*tam_batch+tam_batch]            
+        
+            #Bucle anidado para calcular la sumatoria de xnj * (h(n)-y(n))
+            #for j in range(len(minibatch_x.shape[0])):
+            w = w - learning_rate*dErr(minibatch_x,minibatch_y,w)
+            
     return w
 
 # Pseudoinversa	
-def pseudoinverse(?):
-    #
+def pseudoinverse(x,y):
+    
+    x_traspuesta = x.T
+    y_traspuesta = y.T
+    
+    x_pseudoinversa = x_traspuesta.dot(x)
+    
+    x_pseudoinversa = np.linalg.inv(x_pseudoinversa)
+    
+    x_pseudoinversa = x_pseudoinversa.dot(x_traspuesta)
+    
+    w = x_pseudoinversa.dot(y_traspuesta)
+    
     return w
 
 
@@ -244,13 +320,64 @@ x, y = readData('datos/X_train.npy', 'datos/y_train.npy')
 # Lectura de los datos para el test
 x_test, y_test = readData('datos/X_test.npy', 'datos/y_test.npy')
 
+learning_rate = 0.01
+tam_batch = 64
+maxIter = 500
 
-w = sgd(?)
+num_batch = int(len(x)/tam_batch)
+
+x_aux = x.copy()
+y_aux = y.copy()
+w = sgd(x_aux,y_aux,learning_rate,num_batch,maxIter)
+
+print("W encontrada = ", w)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
 print ("Ein: ", Err(x,y,w))
 print ("Eout: ", Err(x_test, y_test, w))
 
+# Separando etiquetas para poder escribir leyenda en el plot
+etiq1 = []
+etiq5 = []
+for i in range(0,len(y)):
+    if y[i] == 1:
+        etiq5.append(x[i])
+    else:
+        etiq1.append(x[i])
+        
+etiq5 = np.array(etiq5)
+etiq1 = np.array(etiq1)
+
+# Plot de la separación de datos SGD
+
+plt.scatter(etiq5[:,1],etiq5[:,2],c='red',label="5")
+plt.scatter(etiq1[:,1],etiq1[:,2],c='blue',label="1")
+plt.plot([0, 1], [-w[0]/w[2], -w[0]/w[2]-w[1]/w[2]],label="SGD")
+plt.xlabel('Intensidad Promedio')
+plt.ylabel('Simetria')
+plt.legend()
+plt.title('Modelo de regresión lineal obtenido con el SGD')
+plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
+
+w = pseudoinverse(x,y)
+
+print("W encontrada = ", w)
+print ('Bondad del resultado para alg pseudoinversa:\n')
+print ("Ein: ", Err(x,y,w))
+print ("Eout: ", Err(x_test, y_test, w))
+
+# Plot de la separación de datos PSEUDOINVERSA
+
+plt.scatter(etiq5[:,1],etiq5[:,2],c='red',label="5")
+plt.scatter(etiq1[:,1],etiq1[:,2],c='blue',label="1")
+plt.plot([0, 1], [-w[0]/w[2], -w[0]/w[2]-w[1]/w[2]],label="Pseudoinversa")
+plt.xlabel('Intensidad Promedio')
+plt.ylabel('Simetria')
+plt.legend()
+plt.title('Modelo de regresión lineal obtenido con la pseudoinversa')
+plt.show()
+input("\n--- Pulsar tecla para continuar ---\n")
+
 
 #Seguir haciendo el ejercicio...
 
