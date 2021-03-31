@@ -7,6 +7,9 @@ Nombre Estudiante: Ángel Cabeza Martín
 import numpy as np
 from sklearn import utils
 import matplotlib.pyplot as plt
+from sympy import Add
+from sympy.solvers import solve
+from sympy import Symbol, var
 
 np.random.seed(1)
 
@@ -51,7 +54,6 @@ def gradient_descent(initial_point,learning_rate,error2get,tope):
         w = w - learning_rate * gradE(w[0],w[1])
         
         if (apartado3):
-            valor = E(w[0],w[1])
             puntos_grafica.append(E(w[0],w[1]))
             iteraciones.append(iterations)
             
@@ -240,8 +242,6 @@ def Err(x,y,w):
     # He calculado el error según la fórmula dada en teoría (diapositiva 6)
     # Ein(w) = 1/N + SUM(wT*x - y)²
     #
-    #err = np.square(w.T.dot(x) - y)
-
     err = np.square(x.dot(w.T) - y)
     
     return err.mean()
@@ -274,12 +274,12 @@ def sgd(x,y,learning_rate,num_batch,maxIter):
     # en este caso solo tenemos de condicion las iteraciones
     while (iterations < maxIter ) :
         
-        iterations = iterations + 1
         
         # Mezclamos x e y. Esta función solo cambia el orden de la matriz
         # el contenido no lo mezcla, es decir, si la columna 4 contiene los
         # valores 5 y 3, ahora puede que sea la columna 15 pero seguirá conteniendo
-        # los mismos valores.
+        # los mismos valores. Además lo hace en relación y para que aunque esté
+        # todo mezclado a cada punto le siga correspondiendo su etiqueta
         utils.shuffle(x,y,random_state=1)
         
         
@@ -292,10 +292,11 @@ def sgd(x,y,learning_rate,num_batch,maxIter):
             minibatch_x = x[i*tam_batch:i*tam_batch+tam_batch]
             minibatch_y = y[i*tam_batch:i*tam_batch+tam_batch]            
         
-            #Bucle anidado para calcular la sumatoria de xnj * (h(n)-y(n))
-            #for j in range(len(minibatch_x.shape[0])):
             w = w - learning_rate*dErr(minibatch_x,minibatch_y,w)
-            
+        
+        
+        iterations = iterations + 1
+        
     return w
 
 # Pseudoinversa	
@@ -322,18 +323,17 @@ x_test, y_test = readData('datos/X_test.npy', 'datos/y_test.npy')
 
 learning_rate = 0.01
 tam_batch = 64
-maxIter = 500
+maxIter = 400
 
 num_batch = int(len(x)/tam_batch)
 
 x_aux = x.copy()
 y_aux = y.copy()
-w = sgd(x_aux,y_aux,learning_rate,num_batch,maxIter)
+w_sgd = sgd(x_aux,y_aux,learning_rate,num_batch,maxIter)
 
-print("W encontrada = ", w)
 print ('Bondad del resultado para grad. descendente estocastico:\n')
-print ("Ein: ", Err(x,y,w))
-print ("Eout: ", Err(x_test, y_test, w))
+print ("Ein: ", Err(x,y,w_sgd))
+print ("Eout: ", Err(x_test, y_test, w_sgd))
 
 # Separando etiquetas para poder escribir leyenda en el plot
 etiq1 = []
@@ -351,30 +351,67 @@ etiq1 = np.array(etiq1)
 
 plt.scatter(etiq5[:,1],etiq5[:,2],c='red',label="5")
 plt.scatter(etiq1[:,1],etiq1[:,2],c='blue',label="1")
-plt.plot([0, 1], [-w[0]/w[2], -w[0]/w[2]-w[1]/w[2]],label="SGD")
+plt.plot([0, 1], [-w_sgd[0]/w_sgd[2], (-w_sgd[0] - w_sgd[1])/w_sgd[2]],label="SGD")
 plt.xlabel('Intensidad Promedio')
 plt.ylabel('Simetria')
 plt.legend()
-plt.title('Modelo de regresión lineal obtenido con el SGD')
+plt.title('Modelo de regresión lineal obtenido con el SGD learning_rate = 0.01, 500 iteraciones')
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
-w = pseudoinverse(x,y)
+w_pseu = pseudoinverse(x,y)
 
-print("W encontrada = ", w)
 print ('Bondad del resultado para alg pseudoinversa:\n')
-print ("Ein: ", Err(x,y,w))
-print ("Eout: ", Err(x_test, y_test, w))
+print ("Ein: ", Err(x,y,w_pseu))
+print ("Eout: ", Err(x_test, y_test, w_pseu))
 
 # Plot de la separación de datos PSEUDOINVERSA
 
 plt.scatter(etiq5[:,1],etiq5[:,2],c='red',label="5")
 plt.scatter(etiq1[:,1],etiq1[:,2],c='blue',label="1")
-plt.plot([0, 1], [-w[0]/w[2], -w[0]/w[2]-w[1]/w[2]],label="Pseudoinversa")
+plt.plot([0, 1], [-w_pseu[0]/w_pseu[2], (-w_pseu[0] - w_pseu[1])/w_pseu[2]],label="Pseudoinversa")
 plt.xlabel('Intensidad Promedio')
 plt.ylabel('Simetria')
 plt.legend()
 plt.title('Modelo de regresión lineal obtenido con la pseudoinversa')
+plt.show()
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("\nAhora vamos a ver gráficamente como se ajustan los alg fuera de la muestra")
+
+# Separando etiquetas para poder escribir leyenda en el plot
+etiq1 = []
+etiq5 = []
+for i in range(0,len(y_test)):
+    if y_test[i] == 1:
+        etiq5.append(x_test[i])
+    else:
+        etiq1.append(x_test[i])
+        
+etiq5 = np.array(etiq5)
+etiq1 = np.array(etiq1)
+
+
+# Plot de la separación de datos SGD
+
+plt.scatter(etiq5[:,1],etiq5[:,2],c='red',label="5")
+plt.scatter(etiq1[:,1],etiq1[:,2],c='blue',label="1")
+plt.plot([0, 1], [-w_sgd[0]/w_sgd[2], (-w_sgd[0] - w_sgd[1])/w_sgd[2]],label="SGD")
+plt.xlabel('Intensidad Promedio')
+plt.ylabel('Simetria')
+plt.legend()
+plt.title('Modelo de regresión lineal fuera de la muestra obtenido con el SGD learning_rate = 0.01, 500 iteraciones')
+plt.show()
+input("\n--- Pulsar tecla para continuar ---\n")
+
+
+plt.scatter(etiq5[:,1],etiq5[:,2],c='red',label="5")
+plt.scatter(etiq1[:,1],etiq1[:,2],c='blue',label="1")
+plt.plot([0, 1], [-w_pseu[0]/w_pseu[2], (-w_pseu[0] - w_pseu[1])/w_pseu[2]],label="Pseudoinversa")
+plt.xlabel('Intensidad Promedio')
+plt.ylabel('Simetria')
+plt.legend()
+plt.title('Modelo de regresión lineal fuera de la muestra  obtenido con la pseudoinversa')
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
@@ -392,9 +429,354 @@ def sign(x):
 	return -1
 
 def f(x1, x2):
-	return sign(?) 
+	return sign(np.square(x1-0.2) + np.square(x2) - 0.6)
+
+def ruido(etiquetas,porcentaje):
+    num_etiquetas = len(etiquetas)
+    
+    etiquetas_a_cambiar = num_etiquetas * porcentaje
+    
+    etiquetas_a_cambiar = int(round(etiquetas_a_cambiar))
+    
+    for i in range (etiquetas_a_cambiar):
+        indice = np.random.randint(0,1000)
+        etiquetas[indice] = -etiquetas[indice]
+        
+    return etiquetas
+          
 
 #Seguir haciendo el ejercicio...
 
+print("Voy a generar un muestra de entrenamiento de 1000 puntos")
+puntos_cuadrado = simula_unif(1000,2,1)
+
+plt.scatter(puntos_cuadrado[:,0], puntos_cuadrado[:,1], c='b')
+plt.title("Muestra de entrenamiento en el cuadrado [-1,1] x [-1,1]")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.show()
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("Ahora vamos a definir las etiquetas de la muestra")
+
+etiqueta = []
+for i in range(len(puntos_cuadrado)):
+    etiqueta.append(f(puntos_cuadrado[i][0],puntos_cuadrado[i][1]))
+
+etiquetas = np.array(etiqueta)
 
 
+etiqueta_pos = []
+etiqueta_neg = []
+
+for i in range(len(etiquetas)):
+    if (etiquetas[i] >= 0):
+        etiqueta_pos.append(puntos_cuadrado[i])
+    else:
+        etiqueta_neg.append(puntos_cuadrado[i])
+        
+etiquetas_pos = np.array(etiqueta_pos)
+etiquetas_neg = np.array(etiqueta_neg)
+        
+plt.scatter(etiquetas_pos[:,0],etiquetas_pos[:,1], c='yellow',label="f(x) >= 0")
+plt.scatter(etiquetas_neg[:,0],etiquetas_neg[:,1], c='purple',label="f(x) < 0")
+plt.title("Muestra de entrenamiento en el cuadrado [-1,1] x [-1,1], con las etiquetas sin ruido")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.legend()
+plt.show()
+        
+    
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("A continuación introduciremos ruido sobre las etiquetas")
+
+
+etiquetas = ruido(etiquetas,0.1)
+
+etiqueta_pos = []
+etiqueta_neg = []
+
+for i in range(len(etiquetas)):
+    if (etiquetas[i] >= 0):
+        etiqueta_pos.append(puntos_cuadrado[i])
+    else:
+        etiqueta_neg.append(puntos_cuadrado[i])
+        
+etiquetas_pos = np.array(etiqueta_pos)
+etiquetas_neg = np.array(etiqueta_neg)
+        
+plt.scatter(etiquetas_pos[:,0],etiquetas_pos[:,1], c='yellow',label="f(x) >= 0")
+plt.scatter(etiquetas_neg[:,0],etiquetas_neg[:,1], c='purple',label="f(x) < 0")
+plt.title("Muestra de entrenamiento en el cuadrado [-1,1] x [-1,1], con las etiquetas con ruido")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.legend()
+plt.show()
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print ("Finalmente vamos a calcular un modelo de regresión lineal con esta muestra")
+
+caracteristicas = np.ones(puntos_cuadrado.shape[0])
+
+# https://numpy.org/doc/stable/reference/generated/numpy.c_.html
+caracteristicas = np.c_[caracteristicas,puntos_cuadrado]
+
+print("\nPrueba para ver si las características están construidas correctamente")
+print(caracteristicas[: 10])
+
+x = caracteristicas.copy()
+y = etiquetas.copy()
+
+num_batch = int(len(puntos_cuadrado)/tam_batch)
+
+w = sgd(x,y,learning_rate,num_batch,maxIter)
+
+print("\nW encontrada SGD = ", w)
+print ('Bondad del resultado:\n')
+print ("Ein: ", Err(caracteristicas,etiquetas,w))
+
+plt.scatter(etiquetas_pos[:,0],etiquetas_pos[:,1], c='yellow',label="f(x) >= 0")
+plt.scatter(etiquetas_neg[:,0],etiquetas_neg[:,1], c='purple',label="f(x) < 0")
+plt.plot([-1, 1], [-w[0]/w[2], (-w[0] - w[1])/w[2]],label="SGD")
+plt.title("Modelo de regresion lineal obtenido para la muestra de entrenamiento anterior")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.ylim(bottom = -1.1, top = 1.1)
+plt.legend(loc="upper right")
+plt.show()
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("Ahora vamos a repetir el proceso anterior 1000 veces pero con muestras distintas\n")
+print("Paciencia esto puede tardar unos minutos...\n")
+
+contador = 0
+Ein = 0
+Eout = 0
+
+while(contador < 1000):
+    contador += 1
+    
+    x = simula_unif(1000, 2, 1)
+    
+    #Generamos las etiquetas
+    etiqueta = []
+    for i in range(len(x)):
+        etiqueta.append(f(x[i][0],x[i][1]))
+
+    etiquetas = np.array(etiqueta)
+    
+    y = ruido(etiquetas,0.1)
+    
+    
+    #Creamos el vector de caracteristicas
+    caracteristicas = np.ones(x.shape[0])
+    caracteristicas = np.c_[caracteristicas,x]
+    
+    x_aux = caracteristicas.copy()
+    y_aux = y.copy()
+    
+    num_batch = int(len(x)/tam_batch)
+    
+    w = sgd(x_aux,y_aux,learning_rate,num_batch,maxIter)
+    
+    #Variablee donde vamos a ir acumulando el error dentro de la muestra para calcular la media
+    Ein += Err(caracteristicas,y,w)
+    
+    
+    # Repetimos lo mismo para sacar Eout y evaluamos
+    x_out = simula_unif(1000, 2, 1)
+    
+    #Generamos las etiquetas
+    etiqueta = []
+    for i in range(len(puntos_cuadrado)):
+        etiqueta.append(f(x_out[i][0],x_out[i][1]))
+
+    etiquetas = np.array(etiqueta)
+    
+    y_out = ruido(etiquetas,0.1)
+    
+    
+    #Creamos el vector de caracteristicas
+    caracteristicas_out = np.ones(x_out.shape[0])
+    caracteristicas_out = np.c_[caracteristicas_out,x_out]
+    
+    Eout += Err(caracteristicas_out,y_out,w)
+    
+
+print("Valor medio Ein: ",Ein/1000)
+print("\nValor medio de Eout: ", Eout/1000)
+
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("Vamos a repetir el experimento anterior pero con características no lineales")
+
+x = simula_unif(1000, 2, 1)
+
+plt.scatter(x[:,0], x[:,1], c='b')
+plt.title("Muestra de entrenamiento en el cuadrado [-1,1] x [-1,1]")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.show()
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("Ahora vamos a definir las etiquetas de la muestra")
+
+etiqueta = []
+for i in range(len(puntos_cuadrado)):
+    etiqueta.append(f(x[i][0],x[i][1]))
+
+etiquetas = np.array(etiqueta)
+
+
+etiqueta_pos = []
+etiqueta_neg = []
+
+for i in range(len(etiquetas)):
+    if (etiquetas[i] >= 0):
+        etiqueta_pos.append(x[i])
+    else:
+        etiqueta_neg.append(x[i])
+        
+etiquetas_pos = np.array(etiqueta_pos)
+etiquetas_neg = np.array(etiqueta_neg)
+        
+plt.scatter(etiquetas_pos[:,0],etiquetas_pos[:,1], c='yellow',label="f(x) >= 0")
+plt.scatter(etiquetas_neg[:,0],etiquetas_neg[:,1], c='purple',label="f(x) < 0")
+plt.title("Muestra de entrenamiento en el cuadrado [-1,1] x [-1,1], con las etiquetas sin ruido")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.legend()
+plt.show()
+        
+    
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("A continuación introduciremos ruido sobre las etiquetas")
+
+
+etiquetas = ruido(etiquetas,0.1)
+
+etiqueta_pos = []
+etiqueta_neg = []
+
+for i in range(len(etiquetas)):
+    if (etiquetas[i] >= 0):
+        etiqueta_pos.append(x[i])
+    else:
+        etiqueta_neg.append(x[i])
+        
+etiquetas_pos = np.array(etiqueta_pos)
+etiquetas_neg = np.array(etiqueta_neg)
+        
+plt.scatter(etiquetas_pos[:,0],etiquetas_pos[:,1], c='yellow',label="f(x) >= 0")
+plt.scatter(etiquetas_neg[:,0],etiquetas_neg[:,1], c='purple',label="f(x) < 0")
+plt.title("Muestra de entrenamiento en el cuadrado [-1,1] x [-1,1], con las etiquetas con ruido")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.legend()
+plt.show()
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print ("Finalmente vamos a calcular un modelo de regresión con esta muestra")
+
+caracteristicas = np.ones(x.shape[0])
+
+# https://numpy.org/doc/stable/reference/generated/numpy.c_.html
+caracteristicas = np.c_[caracteristicas,x[:, 0], x[:, 1],x[:, 0]*x[:, 1],  np.square(x[:, 0]),  np.square(x[:, 1])]
+
+print("\nPrueba para ver si las características están construidas correctamente")
+print(caracteristicas[: 10])
+
+x_aux = caracteristicas.copy()
+y_aux = etiquetas.copy()
+
+num_batch = int(len(x)/tam_batch)
+
+w = sgd(x_aux,y_aux,learning_rate,num_batch,maxIter)
+
+print("\nW encontrada = ", w)
+print ('Bondad del resultado:\n')
+print ("Ein: ", Err(caracteristicas,etiquetas,w))
+
+
+plt.scatter(etiquetas_pos[:,0],etiquetas_pos[:,1], c='yellow',label="f(x) >= 0")
+plt.scatter(etiquetas_neg[:,0],etiquetas_neg[:,1], c='purple',label="f(x) < 0")
+x_range = np.arange(-1,1,0.025)
+y_range = np.arange(-1,1,0.025)
+valor_x, valor_y = np.meshgrid(x_range,y_range) 
+func = w[0] + valor_x*w[1] + valor_y*w[2] + valor_x*valor_y*w[3] + ((valor_x)**2)*w[4] + ((valor_y)**2)*w[5]
+plt.contour(valor_x,valor_y,func,[0])
+plt.title("Modelo de regresion lineal obtenido para la muestra de entrenamiento anterior")
+plt.xlabel('Valor de x1')
+plt.ylabel('Valor de x2')
+plt.ylim(bottom = -1.1, top = 1.1)
+plt.legend(loc="upper right")
+plt.show()
+
+input("\n--- Pulsar tecla para continuar ---\n")
+
+print("Ahora vamos a repetir el proceso anterior 1000 veces pero con muestras distintas\n")
+print("Paciencia esto puede tardar unos minutos...\n")
+
+contador = 0
+Ein = 0
+Eout = 0
+while(contador < 1000):
+    contador += 1
+    
+    x = simula_unif(1000, 2, 1)
+    
+    #Generamos las etiquetas
+    etiqueta = []
+    for i in range(len(x)):
+        etiqueta.append(f(x[i][0],x[i][1]))
+
+    etiquetas = np.array(etiqueta)
+    
+    y = ruido(etiquetas,0.1)
+    
+    
+    #Creamos el vector de caracteristicas
+    caracteristicas = np.ones(x.shape[0])
+    caracteristicas = np.c_[caracteristicas,x[:, 0], x[:, 1],x[:, 0]*x[:, 1],  np.square(x[:, 0]),  np.square(x[:, 1])]
+    
+    x_aux = caracteristicas.copy()
+    y_aux = y.copy()
+    
+    num_batch = int(len(x)/tam_batch)
+    
+    w = sgd(x_aux,y_aux,learning_rate,num_batch,maxIter)
+    
+    #Variable donde vamos a ir acumulando el error dentro de la muestra para calcular la media
+    Ein += Err(caracteristicas,y,w)
+    
+    
+    # Repetimos lo mismo para sacar Eout y evaluamos
+    x_out = simula_unif(1000, 2, 1)
+    
+    #Generamos las etiquetas
+    etiqueta = []
+    for i in range(len(puntos_cuadrado)):
+        etiqueta.append(f(x_out[i][0],x_out[i][1]))
+
+    etiquetas = np.array(etiqueta)
+    
+    y_out = ruido(etiquetas,0.1)
+    
+    
+    #Creamos el vector de caracteristicas
+    caracteristicas_out = np.ones(x_out.shape[0])
+    caracteristicas_out = np.c_[caracteristicas_out,x_out[:, 0], x_out[:, 1],x_out[:, 0]*x_out[:, 1],  np.square(x_out[:, 0]),  np.square(x_out[:, 1])]
+    
+    Eout += Err(caracteristicas_out,y_out,w)
+    
+
+print("Valor medio Ein: ",Ein/1000)
+print("\nValor medio de Eout: ", Eout/1000)
