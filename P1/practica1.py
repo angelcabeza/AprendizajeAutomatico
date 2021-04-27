@@ -7,9 +7,7 @@ Nombre Estudiante: Ángel Cabeza Martín
 import numpy as np
 from sklearn import utils
 import matplotlib.pyplot as plt
-from sympy import Add
-from sympy.solvers import solve
-from sympy import Symbol, var
+
 
 np.random.seed(1)
 
@@ -163,12 +161,12 @@ input("\n--- Pulsar tecla para continuar ---\n")
 # a qué mínimo llegan en estas iteraciones.
 print ('Vamos a aplicar el algoritmo del gradiente con distintos puntos iniciales\n')
 
-initial_point = np.array([-0.5,0.5])
+initial_point = np.array([-0.5,-0.5])
 learning_rate = 0.01
 
 w,it = gradient_descent(initial_point,learning_rate,error2get,maxIter)
 
-print("Con [-0.5,0.5] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
+print("Con [-0.5,-0.5] de punto inicial obtenemos el siguiente minimo: ", E(w[0],w[1]))
 print("Con las siguientes coordenadas: ",w,"\n")
 
 initial_point = np.array([1,1])
@@ -210,8 +208,6 @@ input("\n--- Pulsar tecla para continuar ---\n")
 print('EJERCICIO SOBRE REGRESION LINEAL\n')
 print('Ejercicio 1\n')
 
-np.random.seed(1)
-
 label5 = 1
 label1 = -1
 
@@ -248,10 +244,8 @@ def Err(x,y,w):
 
 def dErr(x,y,w):
     
-    # 64 ceros
     h_x = x.dot(w.T)
     
-    #64 1 o -1
     dErr = h_x - y.T
     
     dErr = x.T.dot(dErr)
@@ -302,15 +296,16 @@ def sgd(x,y,learning_rate,num_batch,maxIter):
 # Pseudoinversa	
 def pseudoinverse(x,y):
     
+    # Calculamos las traspuestas de X e Y
     x_traspuesta = x.T
     y_traspuesta = y.T
     
+    # Instrucciones para calcular la pseudoinversa de X
     x_pseudoinversa = x_traspuesta.dot(x)
-    
     x_pseudoinversa = np.linalg.inv(x_pseudoinversa)
-    
     x_pseudoinversa = x_pseudoinversa.dot(x_traspuesta)
     
+    # Devolvemos el resultado de multiplicar la pseudoinversa de X por Y
     w = x_pseudoinversa.dot(y_traspuesta)
     
     return w
@@ -321,6 +316,7 @@ x, y = readData('datos/X_train.npy', 'datos/y_train.npy')
 # Lectura de los datos para el test
 x_test, y_test = readData('datos/X_test.npy', 'datos/y_test.npy')
 
+# Inicializamos los parámetros para el SGD
 learning_rate = 0.01
 tam_batch = 64
 maxIter = 400
@@ -332,6 +328,7 @@ y_aux = y.copy()
 w_sgd = sgd(x_aux,y_aux,learning_rate,num_batch,maxIter)
 
 print ('Bondad del resultado para grad. descendente estocastico:\n')
+print("w: ",w_sgd)
 print ("Ein: ", Err(x,y,w_sgd))
 print ("Eout: ", Err(x_test, y_test, w_sgd))
 
@@ -359,6 +356,8 @@ plt.title('Modelo de regresión lineal obtenido con el SGD learning_rate = 0.01,
 plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
+
+# BLoque de código para mostrar el modelo generado por la PSEUDOINVERSA
 w_pseu = pseudoinverse(x,y)
 
 print ('Bondad del resultado para alg pseudoinversa:\n')
@@ -416,13 +415,19 @@ plt.show()
 input("\n--- Pulsar tecla para continuar ---\n")
 
 
-#Seguir haciendo el ejercicio...
+##############################################################################
+#
+#               EJERCICIO 2
+#
+##############################################################################
 
 print('Ejercicio 2\n')
+
 # Simula datos en un cuadrado [-size,size]x[-size,size]
 def simula_unif(N, d, size):
 	return np.random.uniform(-size,size,(N,d))
 
+# Devuelve un 1 si el signo es positivo y -1 si es negativo
 def sign(x):
 	if x >= 0:
 		return 1
@@ -431,6 +436,7 @@ def sign(x):
 def f(x1, x2):
 	return sign(np.square(x1-0.2) + np.square(x2) - 0.6)
 
+# Función que genera índices aleatorios y al número con ese índice le cambia el signo
 def ruido(etiquetas,porcentaje):
     num_etiquetas = len(etiquetas)
     
@@ -445,8 +451,8 @@ def ruido(etiquetas,porcentaje):
     return etiquetas
           
 
-#Seguir haciendo el ejercicio...
 
+# BLOQUE DE CÓDIGO PARA CALCULAR LOS PUNTOS SIN RUIDO Y SIN ETIQUETAS
 print("Voy a generar un muestra de entrenamiento de 1000 puntos")
 puntos_cuadrado = simula_unif(1000,2,1)
 
@@ -458,6 +464,7 @@ plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
+# BLOQUE DE CÓDIGO PARA DEFINIR LAS ETIQUETAS DE LOS PUNTOS
 print("Ahora vamos a definir las etiquetas de la muestra")
 
 etiqueta = []
@@ -490,6 +497,8 @@ plt.show()
     
 input("\n--- Pulsar tecla para continuar ---\n")
 
+
+# BLOQUE DE CÓDIGO EN EL QUE AÑADIMOS RUIDDO A LAS ETIQUETAS
 print("A continuación introduciremos ruido sobre las etiquetas")
 
 
@@ -517,16 +526,26 @@ plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
+
+#BLOQUE DE CÓDIGO PARA CALCULAR EL MODELO DE REGRESIÓN LINEAL DE LA MUESTRA
+# EN ESTE BLOQUE HAY INSTRUCCIONES DIFICILES
 print ("Finalmente vamos a calcular un modelo de regresión lineal con esta muestra")
 
 caracteristicas = np.ones(puntos_cuadrado.shape[0])
 
 # https://numpy.org/doc/stable/reference/generated/numpy.c_.html
+# Esta función concatena los vectores por índices es decir características[i]
+# lo concatena con puntos_cuadrado[i]
+# los argumentos que se le pasa a esta función son los dos vectores que quieres
+# concatenar
 caracteristicas = np.c_[caracteristicas,puntos_cuadrado]
 
+
+# Aquí mostramos las 10 primerass filas del vector de características
 print("\nPrueba para ver si las características están construidas correctamente")
 print(caracteristicas[: 10])
 
+## Bloque de código  que llama al algoritmo de SGD y pinta el resultado
 x = caracteristicas.copy()
 y = etiquetas.copy()
 
@@ -560,17 +579,18 @@ Eout = 0
 while(contador < 1000):
     contador += 1
     
+    # Generamos la muestra de entrenamiento
     x = simula_unif(1000, 2, 1)
     
-    #Generamos las etiquetas
+    #Generamos las etiquetas para la muestra de entrenamiento
     etiqueta = []
     for i in range(len(x)):
         etiqueta.append(f(x[i][0],x[i][1]))
 
     etiquetas = np.array(etiqueta)
     
+    # Añadimos ruido
     y = ruido(etiquetas,0.1)
-    
     
     #Creamos el vector de caracteristicas
     caracteristicas = np.ones(x.shape[0])
@@ -613,6 +633,9 @@ print("\nValor medio de Eout: ", Eout/1000)
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
+#COMIENZA EL SEGUNDO PUNTO DEL EJERCICOI 2
+
+#Bloque de código para generar los puntos de la muestra de entrenamiento y pintar la gráfica
 print("Vamos a repetir el experimento anterior pero con características no lineales")
 
 x = simula_unif(1000, 2, 1)
@@ -625,6 +648,7 @@ plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
+# Bloque de código para generar sus etiquetas y pintar la gráfica
 print("Ahora vamos a definir las etiquetas de la muestra")
 
 etiqueta = []
@@ -657,6 +681,7 @@ plt.show()
     
 input("\n--- Pulsar tecla para continuar ---\n")
 
+#Bloque de código para añadir ruido a las etiquetas y pintar de nuevo la gráfica
 print("A continuación introduciremos ruido sobre las etiquetas")
 
 
@@ -684,6 +709,7 @@ plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
 
+# Bloque de código para llamar al algoritmo y pintar la elipse
 print ("Finalmente vamos a calcular un modelo de regresión con esta muestra")
 
 caracteristicas = np.ones(x.shape[0])
@@ -708,11 +734,23 @@ print ("Ein: ", Err(caracteristicas,etiquetas,w))
 
 plt.scatter(etiquetas_pos[:,0],etiquetas_pos[:,1], c='yellow',label="f(x) >= 0")
 plt.scatter(etiquetas_neg[:,0],etiquetas_neg[:,1], c='purple',label="f(x) < 0")
+
+# PARA PINTAR LA ELIPSE HE CREADO PUNTOS DESDE -1 A 1 de 0.025 EN 0.025 Y HE IDO SUSTITUYENDO
+# EN LA FUNCIÓN DE UNA ELIPSE PARA DIBUJARLA CON CONTOUR
 x_range = np.arange(-1,1,0.025)
 y_range = np.arange(-1,1,0.025)
 valor_x, valor_y = np.meshgrid(x_range,y_range) 
 func = w[0] + valor_x*w[1] + valor_y*w[2] + valor_x*valor_y*w[3] + ((valor_x)**2)*w[4] + ((valor_y)**2)*w[5]
-plt.contour(valor_x,valor_y,func,[0])
+
+#https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.contour.html
+# Los dos primeros argumentos (X,Y) son los vectores con los valores de los puntos
+# el tercer argumento (Z) es la funcion que evalua los puntos
+# y el cuarto argumento es el nivel del contorno (en este caso el nivel 0)
+# si le indicaramos por ejemplo un array [0,1] dibujaría dos contornos con los
+# mismos puntos solo que uno más grande que otro
+plt.contour(valor_x,valor_y,func,0)
+
+
 plt.title("Modelo de regresion lineal obtenido para la muestra de entrenamiento anterior")
 plt.xlabel('Valor de x1')
 plt.ylabel('Valor de x2')
@@ -721,6 +759,9 @@ plt.legend(loc="upper right")
 plt.show()
 
 input("\n--- Pulsar tecla para continuar ---\n")
+
+# Bloque de código para repetir el proceso anterior 1000 veces y calcular la 
+# media de EIN y EOUT
 
 print("Ahora vamos a repetir el proceso anterior 1000 veces pero con muestras distintas\n")
 print("Paciencia esto puede tardar unos minutos...\n")
