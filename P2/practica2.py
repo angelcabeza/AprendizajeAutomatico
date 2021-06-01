@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+
 # Fijamos la semilla
 np.random.seed(1)
 
@@ -580,84 +581,6 @@ plt.ylabel("Valor de y de los puntos obtenidos")
 
 plt.show()
 
-##########################################################################################
-input("\n--- Pulsar tecla para continuar ---\n")
-
-etiquetas = np.array(etiquetas)
-
-# Añadimos unos al inicio de cada dato de x
-x = np.c_[np.ones((x.shape[0] ,1), dtype=np.float64), x]
-
-# Lanzamos regresión logística
-w,epocas = sgdRL(x,etiquetas,0.01)
-
-posibles_etiquetas = (1,-1)
-colores = {1 :'purple',-1: 'pink'}
-
-# Bloque de código donde pintamos los datos de nuevo
-plt.plot(intervalo_trabajo, [ (-w[0]-w[1]*intervalo_trabajo[0])/w[2], (-w[0]-w[1]*intervalo_trabajo[1])/w[2]],'b-',label='Recta obtenida con sgdRL')
-
-plt.plot(intervalo_trabajo, [a*intervalo_trabajo[0] + b, a*intervalo_trabajo[1]+b],"r-", label='Recta obtenida aleatoriamente')
-
-for etiqueta in posibles_etiquetas:
-    indice = np.where(np.array(etiquetas) == etiqueta)
-    
-    plt.scatter(x[indice,1],x[indice,2], c=colores[etiqueta], label="{}".format(etiqueta))
-    
-plt.title("Nube de 100 puntos bidimensionales en el intervalo [0,2], etiquetados segun una recta")
-plt.legend(loc=4)
-plt.xlim(intervalo_trabajo)
-plt.ylim(intervalo_trabajo)
-plt.xlabel("Valor de x de los puntos obtenidos")
-plt.ylabel("Valor de y de los puntos obtenidos")
-
-plt.show()
-
-
-print("w: " + str(w) + "\nÉpocas: " + str(iteraciones))
-print("Error obtenido dentro de la muestra (Ein): " + str(ERM(x, etiquetas, w)))
-
-####################################################################################
-
-# Usar la muestra de datos etiquetada para encontrar nuestra solución g y estimar Eout
-# usando para ello un número suficientemente grande de nuevas muestras (>999).
-
-input("\n--- Pulsar tecla para continuar ---\n")
-
-# LO MISMO QUE LO DE ARRIBA PERO CON 10000 PUNTOS EN VEZ DE 100
-#CODIGO DEL ESTUDIANTE
-x_test = simula_unif(10000,2, intervalo_trabajo)
-
-etiquetas = []
-
-posibles_etiquetas = (1,-1)
-colores = {1: 'purple', -1: 'pink'}
-
-for punto in x_test:
-    etiquetas.append(f(punto[0],punto[1],a,b))
-    
-etiquetas = np.array(etiquetas)
-x_test = np.c_[np.ones((x_test.shape[0],1), dtype=np.float64), x_test]
-
-plt.plot(intervalo_trabajo, [ (-w[0]-w[1]*intervalo_trabajo[0])/w[2], (-w[0]-w[1]*intervalo_trabajo[1])/w[2]],'b-',label='Recta obtenida con sgdRL')
-
-plt.plot(intervalo_trabajo, [a*intervalo_trabajo[0] + b, a*intervalo_trabajo[1]+b],"r-", label='Recta obtenida aleatoriamente')
-
-for etiqueta in posibles_etiquetas:
-    indice = np.where(np.array(etiquetas) == etiqueta)
-    
-    plt.scatter(x_test[indice,1],x_test[indice,2], c=colores[etiqueta], label="{}".format(etiqueta))
-    
-plt.title("Nube de 10000 puntos bidimensionales en el intervalo [0,2], etiquetados segun una recta")
-plt.legend(loc=4)
-plt.xlim(intervalo_trabajo)
-plt.ylim(intervalo_trabajo)
-plt.xlabel("Valor de x de los puntos obtenidos")
-plt.ylabel("Valor de y de los puntos obtenidos")
-
-plt.show()
-
-print("Error fuera de la muestra (Eout): " + str(ERM(x_test,etiquetas,w)))
 ############################################################################################
 
 #Ahora voy a hacer el experimento 100 veces y calcular Eout medio y épocas medias como se pide en el ejericio
