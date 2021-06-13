@@ -18,6 +18,7 @@ from sklearn.linear_model import Lars
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import cross_val_score
 
 # Inicializamos la semilla
 np.random.seed(400)
@@ -174,6 +175,8 @@ x = pca.transform(x)
 
 sgdReg = SGDRegressor(alpha=0.1,eta0=0.0001,penalty='l2',random_state=400)
 sgdReg.fit(x,y)
+
+print("Cota de Eout usando CV para SGD: ", -np.mean(cross_val_score(sgdReg,x,y,scoring="neg_mean_absolute_error")))
 
 sgd_pre = sgdReg.predict(x)
 ein = mean_absolute_error(y,sgd_pre)

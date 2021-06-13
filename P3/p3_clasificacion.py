@@ -229,6 +229,8 @@ x = StandardScaler(copy=False).fit_transform((x))
 svmALL = SVC(kernel='linear',probability=True,decision_function_shape='ovr',random_state=(1))
 svmALL.fit(x,y)
 
+print("Cota Eout usando CV: ", 1 - np.mean(cross_val_score(svmALL,x,y,scoring="accuracy")))
+
 ein = 1 - svmALL.score(x,y)
 print("Ein para SVM Lineeal: ", ein)
 
